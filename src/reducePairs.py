@@ -1,18 +1,25 @@
 #!/usr/bin/python3
 import sys
+from collections import defaultdict
 
-lastPair, res = None, 0
+pairsMap = defaultdict(lambda: 0)
+currKey = None
 for line in sys.stdin:
-    products = line.strip().split("\t")
-    if len(products) != 2:
+    splitted = line.strip().split(' ')
+    if len(splitted) != 2:
         continue
-    pair, val = products
-    if lastPair and lastPair != pair:
-        print(lastPair, "\t", str(res))
-        if lastPair and lastPair.strip().split(" ")[0] != pair.strip().split(" ")[0]:
-            print(pair.strip().split(" ")[0])
-        lastPair, res = pair, int(val)
-    else:
-        if not lastPair:
-            print(pair.strip().split(" ")[0])
-        lastPair, res = pair, res + int(val)
+    
+    key, value = splitted
+    if not currKey:
+        currKey = key
+    
+    if currKey != key:
+        for pair in sorted(pairsMap.items(), key=lambda item: -item[1]):
+            print(currKey, pair[0], pair[1])
+        pairsMap.clear()
+        currKey = key
+
+    pairsMap[value] += 1
+
+for pair in sorted(pairsMap.items(), key=lambda item: -item[1]):
+    print(currKey, pair[0], pair[1])
