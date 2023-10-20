@@ -46,7 +46,7 @@ def main():
         return
     hdfsClient = pyhdfs.HdfsClient(hosts=f"{args[0]}:{args[1]}",
                                    user_name=f"{args[2]}")
-    createDataBase(30, 3, 10)
+    #createDataBase(30, 3, 10)
     f = open("src/db.txt", "rb")
     hdfsClient.delete(f"/user/{args[2]}/products/input", recursive=True)
     hdfsClient.create(f"/user/{args[2]}/products/input", f)
@@ -76,31 +76,23 @@ def main():
               f" -mapper `pwd`/src/{mapper}"
               f" -reducer `pwd`/src/{reducer}")
 
+    # Adviser
     product = input("Enter product name: ")
     adviseCnt = 10
-    localResPath = "./src/ccres.txt"
-    hdfsClient.copy_to_local(f"/user/{args[2]}/products/output/{dir}/part-00000", localResPath)
-    with open(localResPath) as res:
-        lines = res.readlines()
-        offset = None
-        for i in range(len(lines)):
-            record = lines[i].strip().split(' ')
-            if record[0] == product:
-                offset = i
-                break    
-        if offset is None:
-            print("Product not found")
-            return
-
-        idx = 0
-        while offset+idx < len(lines) and adviseCnt > 0:
-            record = lines[offset+idx].strip().split(' ')
-            if record[0] != product:
-                break
-            print(f"{idx+1}. {record[1]}")
-            adviseCnt -= 1
-            idx += 1
-        print()
+    with hdfsClient.open(f"/user/{args[2]}/products/output/{dir}/part-00000") as res:
+        lines = res.read().decode("utf-8").split('\n')
+        helperMap = dict()
+        for i in range(len(lines)-1):
+            products, count = lines[i].strip().split("\t")
+            products = products.split(" ")
+            if product == products[0]:
+                helperMap[products[1]] = int(count)
+            elif product == products[1]:
+                helperMap[products[0]] = int(count)
+        ind = 1
+        for k, v in sorted(helperMap.items(), key=lambda item: (-item[1], item[0])):
+            print(f"{ind}) {k} ({v})")
+            ind += 1
 
 
 if __name__ == "__main__":

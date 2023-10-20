@@ -3,24 +3,26 @@ import sys
 from collections import defaultdict
 
 currKey = None
-prodMap = defaultdict(lambda: 0)
+resultMap = defaultdict(lambda: 0)
 for line in sys.stdin:
-    splitted = line.strip().split(' ')
-    if len(splitted) < 2:
+    splitted = line.strip().split('\t')
+    if len(splitted) != 2:
         continue
     
     key = splitted[0]
+    values = eval(splitted[1])
     if not currKey:
         currKey = key
     
     if currKey != key:
-        for item in sorted(prodMap.items(), key=lambda item: -item[1]):
-            print(currKey, item[0], item[1])
+        for item in resultMap.items():
+            print(f"{currKey} {item[0]}\t{item[1]}")
         currKey = key
-        prodMap.clear()
+        resultMap.clear()
 
-    for i in range(1, len(splitted), 2):
-        prodMap[splitted[i]] += int(splitted[i+1])
+    for item in values.items():
+        if item[0] != key:
+            resultMap[item[0]] += int(item[1])
 
-for item in sorted(prodMap.items(), key=lambda item: -item[1]):
-    print(key, item[0], item[1])
+for item in resultMap.items():
+    print(f"{currKey} {item[0]}\t{item[1]}")

@@ -1,25 +1,22 @@
 #!/usr/bin/python3
 import sys
-from collections import defaultdict
 
-pairsMap = defaultdict(lambda: 0)
 currKey = None
+currSum = 0
 for line in sys.stdin:
-    splitted = line.strip().split(' ')
+    splitted = line.strip().split('\t')
     if len(splitted) != 2:
         continue
     
-    key, value = splitted
+    key = splitted[0]
     if not currKey:
         currKey = key
     
     if currKey != key:
-        for pair in sorted(pairsMap.items(), key=lambda item: -item[1]):
-            print(currKey, pair[0], pair[1])
-        pairsMap.clear()
+        print(f"{currKey}\t{currSum}")
         currKey = key
+        currSum = 0
 
-    pairsMap[value] += 1
+    currSum += int(splitted[1])
 
-for pair in sorted(pairsMap.items(), key=lambda item: -item[1]):
-    print(currKey, pair[0], pair[1])
+print(f"{currKey}\t{currSum}")

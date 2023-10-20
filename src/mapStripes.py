@@ -2,17 +2,10 @@
 import sys
 from collections import defaultdict
 
-prodMap = defaultdict(lambda: 0)
 for line in sys.stdin:
-    prods = line.strip().split(' ')
-    for prod in prods:
-        prodMap[prod] += 1
-    
-    prods.sort()
+    prods = line.strip().split(' ')    
     for i in range(len(prods)):
-        print(prods[i], end=' ')
+        prodMap = defaultdict(lambda: 0)
         for j in range(len(prods)):
-            if i != j:
-                print(prods[j], prodMap[prods[j]], end=' ')
-        print()
-    prodMap.clear()
+            prodMap[prods[j]] += 1
+        print(f"{prods[i]}\t{dict(prodMap)}")
